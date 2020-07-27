@@ -1,0 +1,21 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "com.jtdigi.cidmeexplorer"
+    },
+    "cordova-plugin-file": {
+      "PACKAGE_NAME": "com.jtdigi.cidmeexplorer"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "com.jtdigi.cidmeexplorer"
+    }
+  },
+  "dependent_plugins": {}
+}

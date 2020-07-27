@@ -1,0 +1,64 @@
+textarea {
+    overflow: scroll; 
+    overflow-y: scroll; 
+    overflow-x: scroll; 
+    //overflow:-moz-scrollbars-vertical;
+    //overflow:-moz-scrollbars-horizontal;
+    width:100%;
+}
+
+.ce_CidmeEntityResource {
+   background-color: #dddddd;
+   text-align: left;
+   color:black;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeEntityContextResource {
+   background-color: #aaaaaa;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeEntityContextDataGroupResource {
+   background-color: #aaaaaa;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+
+.ce_CidmeMetadataGroupResource {
+   background-color: #ffffff;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeEntityHeader {
+   color: #000000;
+}
+   
+.ce_CidmeEntityContextHeader {
+   color: #000000;
+}
+
+.ce_CidmeEntityContextDataGroupHeader {
+   color: #000000;
+}
+
+.ce_CidmeMetadataGroupHeader {
+   color: #000000;
+}
+
+.ce_CidmeData {
+   color: #888888;
+}
+

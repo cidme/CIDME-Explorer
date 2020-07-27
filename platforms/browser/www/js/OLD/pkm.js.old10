@@ -1,0 +1,656 @@
+'use strict'
+
+// eslint globals for CIDME
+/* global Cidme, Ajv, UUID */
+// eslint globals for JS
+/* global alert */
+// eslint globals for JQuery
+/* global $ */
+// eslint globals for Cordova
+/* global cordova, device */
+// eslint globals for ???
+/* global FileReader, FileError, Blob */
+
+let cidme = new Cidme(new Ajv({ schemaId: 'auto' }), UUID, false)
+let currentEntity = ''
+
+$('#ce_createEntity').on('touchend', function () { pkmAction('createEntity') })
+$('#ce_createEntity').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmAction('createEntity')
+  }
+})
+
+$('#ce_viewEntity').on('touchend', function () { pkmAction('viewEntity') })
+$('#ce_viewEntity').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmAction('viewEntity')
+  }
+})
+
+$('#ce_downloadEntity').on('touchend', function () { pkmAction('downloadEntity') })
+$('#ce_downloadEntity').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmAction('downloadEntity')
+  }
+})
+
+$('#ce_readFile').on('touchend', function () { pkmReadFile('example.json') })
+$('#ce_readFile').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmReadFile('example.json')
+  }
+})
+
+$('#ce_writeFile').on('touchend', function () { pkmWriteFile('example.json') })
+$('#ce_writeFile').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmWriteFile('example.json')
+  }
+})
+
+$('#ce_testGet').on('touchend', function () { pkmTestGet() })
+$('#ce_testGet').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmTestGet()
+  }
+})
+
+$(document).on('click', '#ce_jsonHide', function () {
+  $('#ce_entityData').hide()
+  $('#ce_jsonHide').hide()
+  $('#ce_jsonShow').show()
+})
+
+$(document).on('click', '#ce_jsonShow', function () {
+  $('#ce_entityData').show()
+  $('#ce_jsonShow').hide()
+  $('#ce_jsonHide').show()
+})
+
+document.forms['fileUploadForm'].elements['fileUpload'].onchange = function (evt) {
+  if (!window.FileReader) {
+    alert('ERROR: This functionality does not work in your browser.')
+
+    return false
+  }
+
+  var reader = new FileReader()
+
+  reader.onload = function (evt) {
+    if (evt.target.readyState !== 2) return
+    if (evt.target.error) {
+      alert('ERROR: An unexpected error occured while uploading file.')
+      return
+    }
+
+    // filecontent = evt.target.result;
+
+    if (cidme.validate(JSON.parse(evt.target.result)) === false) {
+      alert('ERROR:  Invalid CIDME Entity uploaded.')
+    } else {
+      currentEntity = JSON.parse(evt.target.result)
+      document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+      pkmVisualizeEntity()
+    }
+  }
+
+  reader.readAsText(evt.target.files[0])
+}
+
+document.getElementById('ce_entityData').onchange = function () {
+  // alert('Change detected!')
+  if (cidme.validate(JSON.parse(document.getElementById('ce_entityData').value)) === false) {
+    alert('ERROR:  Invalid CIDME Entity.')
+  } else {
+    currentEntity = JSON.parse(document.getElementById('ce_entityData').value)
+    pkmVisualizeEntity()
+  }
+}
+
+function pkmAction (action) {
+  // alert(action);
+
+  if (action === 'createEntity') {
+    // alert(JSON.stringify(cidme.createEntityResource()));
+    currentEntity = cidme.createEntityResource()
+
+    // document.forms['fileUploadForm'].elements['fileUploadData'].value = JSON.stringify(currentEntity)
+    document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+    pkmVisualizeEntity()
+
+    // alert('Entity created.')
+  } else if (action === 'viewEntity') {
+    // alert(JSON.stringify(currentEntity))
+  } else if (action === 'downloadEntity') {
+    if (device.platform.toLowerCase() === 'android') {
+      alert('ERROR: This functionality does not work in your browser.')
+    } else {
+      pkmDownloadFile('Entity.cidme', JSON.stringify(currentEntity))
+    }
+  } else {
+    alert('ERROR: UNKNOWN ACTION REQUESTED')
+  }
+
+  return true
+}
+
+function pkmReadFile (fileName) {
+  if (device.platform.toLowerCase() === 'browser') {
+    alert('ERROR: This functionality does not work in the browser.')
+
+    return false
+  }
+
+  readFromFile(fileName, function (data) {
+    if (cidme.validate(JSON.parse(data)) === false) {
+      alert('ERROR:  Invalid CIDME Entity uploaded.')
+    } else {
+      currentEntity = JSON.parse(data)
+      document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+      pkmVisualizeEntity()
+    }
+  })
+}
+
+function pkmWriteFile (fileName) {
+  if (device.platform.toLowerCase() === 'browser') {
+    alert('ERROR: This functionality does not work in the browser.')
+
+    return false
+  }
+
+  // writeToFile(fileName, JSON.stringify(cidme.createEntityResource()))
+  writeToFile(fileName, JSON.stringify(currentEntity))
+}
+
+function pkmDownloadFile (filename, text) {
+  var element = document.createElement('a')
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+  // element.setAttribute('href', 'data:application/octet-stream,' + encodeURIComponent(text))
+  element.setAttribute('download', filename)
+
+  element.style.display = 'none'
+  document.body.appendChild(element)
+
+  element.click()
+
+  document.body.removeChild(element)
+}
+
+function pkmVisualizeEntity () {
+  $('div#ce_entityView').replaceWith('<div id="ce_entityView"></div>')
+
+  if (currentEntity === '' || cidme.validate(currentEntity) === false) { return false }
+
+  pkmVisualizeCidmeResource(currentEntity, null)
+
+  return true
+}
+
+function pkmVisualizeCidmeResource (cidmeResource, parentUri) {
+  if (cidmeResource['@type'] === 'Entity') {
+    $('<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityResource"> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+        '</div> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeEntityHeader"> ' +
+            'Type: ' + cidmeResource['@type'] + '<br /> ' +
+            'ID: ' + cidmeResource['@id'] + '<br /> ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata_control"> ' +
+            'Metadata: &nbsp; ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata"> ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContexts_control"> ' +
+            'EntityContexts: &nbsp; ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContexts"> ' +
+        '</div> ' +
+        '</div>').appendTo('div#ce_entityView')
+
+    pkmVisualizeAddResourceControl(cidmeResource['@id'])
+
+    console.log('Appending Entity: ' + cidmeResource['@id'])
+
+    pkmVisualizeEntityItemMetadata(cidmeResource, cidmeResource['@id'])
+
+    pkmVisualizeAddResourceControl(cidmeResource['@id'], 'entityContexts', true)
+    if (cidmeResource.hasOwnProperty('entityContexts') && cidmeResource['entityContexts'].length > 0) {
+      for (let i = 0; i < cidmeResource['entityContexts'].length; i++) {
+        pkmVisualizeCidmeResource(cidmeResource['entityContexts'][i], cidmeResource['@id'])
+      }
+    }
+  } else if (cidmeResource['@type'] === 'EntityContext') {
+    $('<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityContextResource"> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+        '</div> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeEntityContextHeader"> ' +
+            'Type: ' + cidmeResource['@type'] + '<br /> ' +
+            'ID: ' + cidmeResource['@id'] + '<br /> ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata_control"> ' +
+            'Metadata: &nbsp; ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata"> ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextData_control"> ' +
+            'EntityContextData: &nbsp; ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextData"> ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextLinks_control"> ' +
+            'EntityContextLinks: &nbsp; ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextLinks"> ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContexts_control"> ' +
+            'EntityContexts: &nbsp; ' +
+        '</div> ' +
+        '<br /> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContexts"> ' +
+        '</div> ' +
+      '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_entityContexts')
+
+    pkmVisualizeAddResourceControl(cidmeResource['@id'])
+
+    console.log('Appending EntityContext: ' + cidmeResource['@id'])
+
+    pkmVisualizeEntityItemMetadata(cidmeResource, cidmeResource['@id'])
+    pkmVisualizeEntityContextData(cidmeResource, cidmeResource['@id'])
+    pkmVisualizeEntityContextLinks(cidmeResource, cidmeResource['@id'])
+
+    pkmVisualizeAddResourceControl(cidmeResource['@id'], 'entityContexts', true)
+    if (cidmeResource.hasOwnProperty('entityContexts') && cidmeResource['entityContexts'].length > 0) {
+      for (let i = 0; i < cidmeResource['entityContexts'].length; i++) {
+        pkmVisualizeCidmeResource(cidmeResource['entityContexts'][i], cidmeResource['@id'])
+      }
+    }
+  }
+
+  return true
+}
+
+function pkmVisualizeEntityContextData (cidmeResource, parentUri) {
+  pkmVisualizeAddResourceControl(parentUri, 'entityContextData', true)
+
+  if (cidmeResource.hasOwnProperty('entityContextData') && cidmeResource['entityContextData'].length > 0) {
+    for (let i = 0; i < cidmeResource['entityContextData'].length; i++) {
+      pkmVisualizeEntityContextDataItem(cidmeResource['entityContextData'][i], parentUri)
+    }
+  }
+
+  return true
+}
+
+function pkmVisualizeEntityContextDataItem (cidmeResource, parentUri) {
+  $('<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityContextDataGroupResource"> ' +
+    '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+      '</div> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeMetadataGroupHeader"> ' +
+          'Type: ' + cidmeResource['@type'] + '<br /> ' +
+          'ID: ' + cidmeResource['@id'] + '<br /> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_data" class="ce_CidmeData"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_dataAdd" class="ce_CidmeDataAdd"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata_control"> ' +
+          'Metadata: &nbsp; ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata"> ' +
+      '</div> ' +
+    '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_entityContextData')
+
+  pkmVisualizeEntityItemMetadata(cidmeResource, cidmeResource['@id'])
+  pkmVisualizeEntityItemData(cidmeResource, cidmeResource['@id'])
+
+  console.log('Appending EntityContextData : ' + cidmeResource['@id'])
+
+  pkmVisualizeAddResourceControl(cidmeResource['@id'])
+
+  return true
+}
+
+function pkmVisualizeEntityContextLinks (cidmeResource, parentUri) {
+  pkmVisualizeAddResourceControl(parentUri, 'entityContextLinks', true)
+
+  if (cidmeResource.hasOwnProperty('entityContextLinks') && cidmeResource['entityContextLinks'].length > 0) {
+    for (let i = 0; i < cidmeResource['entityContextLinks'].length; i++) {
+      pkmVisualizeEntityContextLinksItem(cidmeResource['entityContextLinks'][i], parentUri)
+    }
+  }
+
+  return true
+}
+
+function pkmVisualizeEntityContextLinksItem (cidmeResource, parentUri) {
+  $('<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityContextLinkGroupResource"> ' +
+    '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+      '</div> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeMetadataGroupHeader"> ' +
+        'Type: ' + cidmeResource['@type'] + '<br /> ' +
+        'ID: ' + cidmeResource['@id'] + '<br /> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_data" class="ce_CidmeData"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_dataAdd" class="ce_CidmeDataAdd"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata_control"> ' +
+        'Metadata: &nbsp; ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata"> ' +
+      '</div> ' +
+    '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_entityContextLinks')
+
+  pkmVisualizeEntityItemMetadata(cidmeResource, cidmeResource['@id'])
+  pkmVisualizeEntityItemData(cidmeResource, cidmeResource['@id'])
+
+  console.log('Appending EntityContextLink: ' + cidmeResource['@id'])
+
+  pkmVisualizeAddResourceControl(cidmeResource['@id'])
+
+  return true
+}
+
+function pkmVisualizeEntityItemMetadata (cidmeResource, parentUri) {
+  console.log('Appending Metadata Array - cidmeResource(@id): ' + cidmeResource['@id'] + ', parentUri: ' + parentUri)
+  pkmVisualizeAddResourceControl(parentUri, 'metadata', true)
+
+  if (cidmeResource.hasOwnProperty('metadata') && cidmeResource['metadata'].length > 0) {
+    for (let i = 0; i < cidmeResource['metadata'].length; i++) {
+      pkmVisualizeEntityItemMetadataItem(cidmeResource['metadata'][i], parentUri)
+    }
+  }
+
+  return true
+}
+
+function pkmVisualizeEntityItemMetadataItem (cidmeResource, parentUri) {
+  console.log('Appending MetadataGroup: ' + cidmeResource['@id'])
+
+  $('<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeMetadataGroupResource"> ' +
+    '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+      '</div> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeMetadataGroupHeader"> ' +
+        'Type: ' + cidmeResource['@type'] + '<br /> ' +
+        'ID: ' + cidmeResource['@id'] + '<br /> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_data" class="ce_CidmeData"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_dataAdd" class="ce_CidmeDataAdd"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata_control"> ' +
+        'Metadata: &nbsp; ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata"> ' +
+      '</div> ' +
+    '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_metadata')
+
+  pkmVisualizeEntityItemMetadata(cidmeResource, cidmeResource['@id'])
+  pkmVisualizeEntityItemData(cidmeResource, cidmeResource['@id'])
+
+  pkmVisualizeAddResourceControl(cidmeResource['@id'])
+
+  return true
+}
+
+// function pkmVisualizeAddResourceControl (parentUri, resourceType) {
+function pkmVisualizeAddResourceControl (resourceUri, targetResourceType, isArrayOfItems) {
+  if (!isArrayOfItems) { isArrayOfItems = false } else { isArrayOfItems = true }
+  console.log('isArrayOfItems: ' + JSON.stringify(isArrayOfItems) + ' - ' + resourceUri)
+  var resourceId = cidme.parseCidmeUri(resourceUri)['id']
+  var resourceType = cidme.parseCidmeUri(resourceUri)['resourceType']
+  if (isArrayOfItems === true) {
+    if (targetResourceType === 'metadata') { resourceId += '_metadata' } else if (targetResourceType === 'entityContexts') { resourceId += '_entityContexts' } else if (targetResourceType === 'entityContextData') { resourceId += '_entityContextData' } else if (targetResourceType === 'entityContextLinks') { resourceId += '_entityContextLinks' } else { return false }
+  }
+
+  $('<span id="' + resourceId + '_controlHide" class="ce_CidmeResourceHide"></span>').appendTo('#' + resourceId + '_control')
+
+  $('<span id="' + resourceId + '_controlShow" class="ce_CidmeResourceShow"></span>').appendTo('#' + resourceId + '_control')
+
+  $('#' + resourceId + '_controlShow').hide()
+
+  if (isArrayOfItems === true) {
+    $('<span id="' + resourceId + '_controlAddNew" class="ce_CidmeResourceAddNew"></span>').appendTo('#' + resourceId + '_control')
+  }
+
+  if (isArrayOfItems === false) {
+    $('<span id="' + resourceId + '_controlDelete" class="ce_CidmeResourceDelete"></span>').appendTo('#' + resourceId + '_control')
+  }
+
+  if (isArrayOfItems === false && (resourceType === 'MetadataGroup' || resourceType === 'EntityContextDataGroup' || resourceType === 'EntityContextLinkGroup')) {
+    $('<span id="' + resourceId + '_controlAddData" class="ce_CidmeResourceAddData"></span>').appendTo('#' + resourceId + '_control')
+  }
+
+  $(document).on('click', '#' + resourceId + '_controlHide', function () {
+    $('#' + resourceId + '_controlHide').hide()
+    $('#' + resourceId + '_controlShow').show()
+
+    if (isArrayOfItems === true) {
+      $('#' + resourceId).hide()
+    } else {
+      $('#' + resourceId + '_header').hide()
+      $('#' + resourceId + '_metadata_control').hide()
+      $('#' + resourceId + '_metadata').hide()
+      $('#' + resourceId + '_data').hide()
+      $('#' + resourceId + '_entityContexts_control').hide()
+      $('#' + resourceId + '_entityContexts').hide()
+    }
+
+    // console.log('Clicked Hide');
+  })
+
+  $(document).on('click', '#' + resourceId + '_controlShow', function () {
+    $('#' + resourceId + '_controlShow').hide()
+    $('#' + resourceId + '_controlHide').show()
+
+    if (isArrayOfItems === true) {
+      $('#' + resourceId).show()
+    } else {
+      $('#' + resourceId + '_header').show()
+      $('#' + resourceId + '_metadata_control').show()
+      $('#' + resourceId + '_metadata').show()
+      $('#' + resourceId + '_data').show()
+      $('#' + resourceId + '_entityContexts_control').show()
+      $('#' + resourceId + '_entityContexts').show()
+    }
+
+    // console.log('Clicked Show');
+  })
+
+  $(document).on('click', '#' + resourceId + '_controlDelete', function () {
+    console.log('Clicked Delete')
+
+    // if (confirm('Are you sure you wish to delete this ' + cidme.parseCidmeUri(resourceUri)['resourceType'] + '?')) {
+    pkmDelete(resourceUri)
+    // console.log('Delete confirmed.');
+    // }
+
+    // console.log('Clicked Delete');
+  })
+
+  $(document).on('click', '#' + resourceId + '_controlAddNew', function () {
+    console.log('Clicked Add - ' + resourceType + ': ' + resourceUri)
+
+    let newResource = null
+
+    if (targetResourceType === 'metadata') {
+      newResource = cidme.createMetadataGroupResource(resourceUri)
+
+      pkmVisualizeEntityItemMetadataItem(newResource, resourceUri)
+    } else if (targetResourceType === 'entityContexts') {
+      newResource = cidme.createEntityContextResource(resourceUri)
+
+      pkmVisualizeCidmeResource(newResource, resourceUri)
+    } else if (targetResourceType === 'entityContextData') {
+      newResource = cidme.createEntityContextDataGroupResource(resourceUri)
+
+      pkmVisualizeEntityContextDataItem(newResource, resourceUri)
+    } else if (targetResourceType === 'entityContextLinks') {
+      newResource = cidme.createEntityContextLinkGroupResource(resourceUri)
+
+      pkmVisualizeEntityContextLinksItem(newResource, resourceUri)
+    }
+
+    if (newResource !== null) {
+      currentEntity = cidme.addResourceToParent(resourceUri, currentEntity, newResource)
+      document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+      // pkmVisualizeEntity()
+    }
+  })
+
+  return true
+}
+
+function pkmDelete (resourceId) {
+  /*
+    currentEntity = cidme.deleteResource(resourceId, currentEntity);
+
+    document.getElementById('ce_entityData').value = ''
+    document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+    pkmVisualizeEntity();
+    */
+
+  document.getElementById('ce_entityData').value = JSON.stringify(cidme.deleteResource(resourceId, currentEntity), null, 2)
+  // currentEntity = JSON.parse(document.getElementById('ce_entityData').value)
+  // pkmVisualizeEntity();
+
+  // $('#' + cidme.parseCidmeUri(resourceId)['id'] + '_controlHide').click()
+  $('#' + cidme.parseCidmeUri(resourceId)['id']).hide()
+}
+
+function pkmVisualizeEntityItemData (cidmeResource, parentUri) {
+  if (cidmeResource.hasOwnProperty('data') && cidmeResource['data'].length > 0) {
+    for (let i = 0; i < cidmeResource['data'].length; i++) {
+      for (var property in cidmeResource['data'][i]) {
+        if (cidmeResource['data'][i].hasOwnProperty(property)) {
+          if (
+            typeof property === 'string' &&
+                        (
+                          property === '@type' ||
+                             property.substring(0, 1) !== '@'
+                        )
+          ) {
+            $('<div id="' + cidme.parseCidmeUri(parentUri)['id'] + '_data_' + i + '_' + property + '" class="ce_CidmeDataItem"> ' +
+                property + ': ' + cidmeResource['data'][i][property] +
+                '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_data')
+
+            console.log('Appending Data.')
+          }
+        }
+      }
+    }
+  }
+
+  return true
+}
+
+function readFromFile (fileName, cb) {
+  var pathToFile = cordova.file.dataDirectory + fileName
+  window.resolveLocalFileSystemURL(pathToFile, function (fileEntry) {
+    fileEntry.file(function (file) {
+      var reader = new FileReader()
+
+      // reader.onloadend = function (e) {
+      reader.onloadend = function () {
+        cb(JSON.parse(this.result))
+      }
+
+      reader.readAsText(file)
+    }, errorHandler.bind(null, fileName))
+  }, errorHandler.bind(null, fileName))
+}
+
+function writeToFile (fileName, data) {
+  data = JSON.stringify(data, null, '\t')
+  window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (directoryEntry) {
+    directoryEntry.getFile(fileName, { create: true }, function (fileEntry) {
+      fileEntry.createWriter(function (fileWriter) {
+        // fileWriter.onwriteend = function (e) {
+        fileWriter.onwriteend = function () {
+          // for real-world usage, you might consider passing a success callback
+          console.log('Write of file "' + fileName + '"" completed.')
+        }
+
+        fileWriter.onerror = function (e) {
+          // you could hook this up with our global error handler, or pass in an error callback
+          console.log('Write failed: ' + e.toString())
+        }
+
+        var blob = new Blob([data], { type: 'text/plain' })
+        fileWriter.write(blob)
+      }, errorHandler.bind(null, fileName))
+    }, errorHandler.bind(null, fileName))
+  }, errorHandler.bind(null, fileName))
+}
+
+function errorHandler (fileName, e) {
+  var msg = ''
+
+  switch (e.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'Storage quota exceeded'
+      break
+    case FileError.NOT_FOUND_ERR:
+      msg = 'File not found'
+      break
+    case FileError.SECURITY_ERR:
+      msg = 'Security error'
+      break
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'Invalid modification'
+      break
+    case FileError.INVALID_STATE_ERR:
+      msg = 'Invalid state'
+      break
+    default:
+      msg = 'Unknown error'
+      break
+  };
+
+  console.log('Error (' + fileName + '): ' + msg)
+  alert('Error (' + fileName + '): ' + msg)
+}
+
+function pkmTestGet () {
+  alert('TESTING GET...')
+
+  //  url : "https://ionic/index.html",
+  //  url : "https://joethielen.dyndns.org",
+  //  url : "https://cidme/x.php",
+  //  url : "https://joethielen.dyndns.org/automite/automite.php?automite_cmd=beeper&automite_key=12345543210987667890",
+  $.ajax({
+    type: 'GET',
+    url: 'https://joethielen.dyndns.org/x.php'
+  })
+    .done(function (data) {
+      alert(data)
+    })
+    .fail(function () {
+      alert('Error fetching data.')
+    })
+}

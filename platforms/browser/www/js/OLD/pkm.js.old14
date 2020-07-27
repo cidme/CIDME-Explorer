@@ -1,0 +1,820 @@
+'use strict'
+
+// eslint globals for CIDME
+/* global Cidme, Ajv, UUID */
+// eslint globals for RDFLib
+/* global $rdf */
+// eslint globals for JSON-LD
+/* global jsonld */
+// eslint globals for JS
+/* global alert */
+// eslint globals for JQuery
+/* global $ */
+// eslint globals for Cordova
+/* global cordova, device */
+// eslint globals for ???
+/* global FileReader, FileError, Blob */
+
+let cidme = new Cidme(new Ajv({ schemaId: 'auto' }), UUID, false)
+let currentEntity = ''
+
+// $('#ce_createEntity').on('touchend', function () { pkmAction('createEntity') })
+// $('#ce_createEntity').on('click', function () {
+$(document).on('click', '#ce_createEntity', function () {
+  pkmAction('createEntity')
+})
+
+// $('#ce_viewEntity').on('touchend', function () { pkmAction('viewEntity') })
+// $('#ce_viewEntity').on('click', function () {
+$(document).on('click', '#ce_viewEntity', function () {
+  pkmAction('viewEntity')
+})
+
+// $('#ce_downloadEntity').on('touchend', function () { pkmAction('downloadEntity') })
+// $('#ce_downloadEntity').on('click', function () {
+$(document).on('click', '#ce_downloadEntity', function () {
+  pkmAction('downloadEntity')
+})
+
+// $('#ce_readFile').on('touchend', function () { pkmReadFile('example.json') })
+// $('#ce_readFile').on('click', function () {
+$(document).on('click', '#ce_readFile', function () {
+  pkmReadFile('example.json')
+})
+
+// $('#ce_writeFile').on('touchend', function () { pkmWriteFile('example.json') })
+// $('#ce_writeFile').on('click', function () {
+$(document).on('click', '#ce_writeFile', function () {
+  pkmWriteFile('example.json')
+})
+
+// $('#ce_testGet').on('touchend', function () { pkmTestGet() })
+// $('#ce_testGet').on('click', function () {
+$(document).on('click', '#ce_testGet', function () {
+  pkmTestGet()
+})
+
+$(document).on('click', '#ce_jsonHide', function () {
+  $('#ce_entityData').hide()
+  $('#ce_jsonHide').hide()
+  $('#ce_jsonShow').show()
+})
+
+$(document).on('click', '#ce_jsonShow', function () {
+  $('#ce_entityData').show()
+  $('#ce_jsonShow').hide()
+  $('#ce_jsonHide').show()
+})
+
+// /*
+let cachedJsonLdContexts = {
+  'http://cidme.net/vocab/ext/0.1.0/jsonldcontext.json': {
+    '@context': {
+      'type': '@type',
+      'id': '@id',
+      '@vocab': 'http://cidme.net/vocab/ext/0.1.0/',
+      'cidmeext': 'http://cidme.net/vocab/ext/0.1.0/',
+      'ActiveStatus': { '@id': 'cidmeext:ActiveStatus/ActiveStatus.jsonld' },
+      'ActiveSuperStatus': { '@id': 'cidmeext:ActiveSuperStatus/ActiveSuperStatus.jsonld' },
+      'ArchivedStatus': { '@id': 'cidmeext:ArchivedStatus/ArchivedStatus.jsonld' },
+      'ArchivedSuperStatus': { '@id': 'cidmeext:ArchivedSuperStatus/ArchivedSuperStatus.jsonld' },
+      'CanceledStatus': { '@id': 'cidmeext:CanceledStatus/CanceledStatus.jsonld' },
+      'ConceptionStatus': { '@id': 'cidmeext:ConceptionStatus/ConceptionStatus.jsonld' },
+      'DefaultMetadata': { '@id': 'cidmeext:DefaultMetadata/DefaultMetadata.jsonld' },
+      'EntityType': { '@id': 'cidmeext:EntityType/EntityType.jsonld' },
+      'EntityTypeMetadata': { '@id': 'cidmeext:EntityTypeMetadata/EntityTypeMetadata.jsonld' },
+      'InactiveStatus': { '@id': 'cidmeext:InactiveStatus/InactiveStatus.jsonld' },
+      'InactiveSuperStatus': { '@id': 'cidmeext:InactiveSuperStatus/InactiveSuperStatus.jsonld' },
+      'OrganizationEntityType': { '@id': 'cidmeext:OrganizationEntityType/OrganizationEntityType.jsonld' },
+      'PersonEntityType': { '@id': 'cidmeext:PersonEntityType/PersonEntityType.jsonld' },
+      'PersonNameEntityContextData': { '@id': 'cidmeext:PersonNameEntityContextData/PersonNameEntityContextData.jsonld' },
+      'PlaceEntityType': { '@id': 'cidmeext:PlaceEntityType/PlaceEntityType.jsonld' },
+      'PurgedStatus': { '@id': 'cidmeext:PurgedStatus/PurgedStatus.jsonld' },
+      'ResourceStatus': { '@id': 'cidmeext:ResourceStatus/ResourceStatus.jsonld' },
+      'ResourceSuperStatus': { '@id': 'cidmeext:ResourceSuperStatus/ResourceSuperStatus.jsonld' },
+      'StagingStatus': { '@id': 'cidmeext:StagingStatus/StagingStatus.jsonld' },
+      'StagingSuperStatus': { '@id': 'cidmeext:StagingSuperStatus/StagingSuperStatus.jsonld' },
+      'StatusMetadata': { '@id': 'cidmeext:StatusMetadata/StatusMetadata.jsonld' },
+      'ThingEntityType': { '@id': 'cidmeext:ThingEntityType/ThingEntityType.jsonld' },
+      'TypeMetadata': { '@id': 'cidmeext:TypeMetadata/TypeMetadata.jsonld' },
+      'default': { '@id': 'cidmeext:default/default.jsonld' },
+      'displayName': { '@id': 'cidmeext:displayName/displayName.jsonld' },
+      'endDateTime': { '@id': 'cidmeext:endDateTime/endDateTime.jsonld' },
+      'entityType': { '@id': 'cidmeext:entityType/entityType.jsonld' },
+      'familyName': { '@id': 'cidmeext:familyName/familyName.jsonld' },
+      'generationQualifier': { '@id': 'cidmeext:generationQualifier/generationQualifier.jsonld' },
+      'givenInformalName': { '@id': 'cidmeext:givenInformalName/givenInformalName.jsonld' },
+      'givenName': { '@id': 'cidmeext:givenName/givenName.jsonld' },
+      'indexName': { '@id': 'cidmeext:indexName/indexName.jsonld' },
+      'middleName': { '@id': 'cidmeext:middleName/middleName.jsonld' },
+      'nickName': { '@id': 'cidmeext:nickName/nickName.jsonld' },
+      'prefixName': { '@id': 'cidmeext:prefixName/prefixName.jsonld' },
+      'resourceStatus': { '@id': 'cidmeext:resourceStatus/resourceStatus.jsonld' },
+      'resourceSuperStatus': { '@id': 'cidmeext:resourceSuperStatus/resourceSuperStatus.jsonld' },
+      'startDateTime': { '@id': 'cidmeext:startDateTime/startDateTime.jsonld' },
+      'suffixName': { '@id': 'cidmeext:suffixName/suffixName.jsonld' }
+    }
+  },
+  'http://cidme.net/vocab/core/0.3.0/jsonldcontext.json': {
+    '@context': {
+      'type': '@type',
+      'id': '@id',
+      '@vocab': 'http://cidme.net/vocab/core/0.3.0/',
+      'cidme': 'http://cidme.net/vocab/core/0.3.0/',
+      'cidmeUri': { '@id': 'cidme:cidmeUri/cidmeUri.jsonld' },
+      'data': { '@id': 'cidme:data/data.jsonld' },
+      'Entity': { '@id': 'cidme:Entity/Entity.jsonld' },
+      'entityContexts': { '@id': 'cidme:entityContexts/entityContexts.jsonld' },
+      'EntityContext': { '@id': 'cidme:EntityContext/EntityContext.jsonld' },
+      'entityContextData': { '@id': 'cidme:entityContextData/entityContextData.jsonld' },
+      'EntityContextDataGroup': { '@id': 'cidme:EntityContextDataGroup/EntityContextDataGroup.jsonld' },
+      'entityContextLinks': { '@id': 'cidme:entityContextLinks/entityContextLinks.jsonld' },
+      'EntityContextLinkGroup': { '@id': 'cidme:EntityContextLinkGroup/EntityContextLinkGroup.jsonld' },
+      'externalId': { '@id': 'cidme:externalId/externalId.jsonld' },
+      'externalIdType': { '@id': 'cidme:externalIdType/externalIdType.jsonld' },
+      'CreatedMetadata': { '@id': 'cidme:CreatedMetadata/CreatedMetadata.jsonld' },
+      'ModifiedMetadata': { '@id': 'cidme:ModifiedMetadata/ModifiedMetadata.jsonld' },
+      'LastModifiedMetadata': { '@id': 'cidme:LastModifiedMetadata/LastModifiedMetadata.jsonld' },
+      'LabelMetadata': { '@id': 'cidme:LabelMetadata/LabelMetadata.jsonld' },
+      'NoteMetadata': { '@id': 'cidme:NoteMetadata/NoteMetadata.jsonld' },
+      'metadata': { '@id': 'cidme:metadata/metadata.jsonld' },
+      'MetadataGroup': { '@id': 'cidme:MetadataGroup/MetadataGroup.jsonld' }
+    }
+  }
+}
+//  */
+
+// /*
+jsonld.documentLoader = function (url, callback) {
+  if (url in cachedJsonLdContexts) {
+    return callback(
+      null, {
+        contextUrl: null, // this is for a context via a link header
+        document: cachedJsonLdContexts[url], // this is the actual document that was loaded
+        documentUrl: url // this is the actual context URL after redirects
+      })
+  } else {
+    throw new Error('invalid context: ' + url)
+    // console.log('invalid context: ' + url)
+  }
+}
+//  */
+
+document.forms['fileUploadForm'].elements['fileUpload'].onchange = function (evt) {
+  if (!window.FileReader) {
+    alert('ERROR: This functionality does not work in your browser.')
+
+    return false
+  }
+
+  var reader = new FileReader()
+
+  reader.onload = function (evt) {
+    if (evt.target.readyState !== 2) return
+    if (evt.target.error) {
+      alert('ERROR: An unexpected error occured while uploading file.')
+      return
+    }
+
+    // filecontent = evt.target.result;
+
+    if (cidme.validate(JSON.parse(evt.target.result)) === false) {
+      alert('ERROR:  Invalid CIDME Entity uploaded.')
+    } else {
+      currentEntity = JSON.parse(evt.target.result)
+      document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+      pkmVisualizeEntity()
+    }
+  }
+
+  reader.readAsText(evt.target.files[0])
+}
+
+document.getElementById('ce_entityData').onchange = function () {
+  // alert('Change detected!')
+  if (cidme.validate(JSON.parse(document.getElementById('ce_entityData').value)) === false) {
+    alert('ERROR:  Invalid CIDME Entity.')
+  } else {
+    currentEntity = JSON.parse(document.getElementById('ce_entityData').value)
+    pkmVisualizeEntity()
+  }
+}
+
+function pkmAction (action) {
+  // alert(action);
+
+  if (action === 'createEntity') {
+    // alert(JSON.stringify(cidme.createEntityResource()));
+    currentEntity = cidme.createEntityResource()
+
+    // document.forms['fileUploadForm'].elements['fileUploadData'].value = JSON.stringify(currentEntity)
+    document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+    pkmVisualizeEntity()
+
+    // alert('Entity created.')
+  } else if (action === 'viewEntity') {
+    // alert(JSON.stringify(currentEntity))
+  } else if (action === 'downloadEntity') {
+    if (device.platform.toLowerCase() === 'android') {
+      alert('ERROR: This functionality does not work in your browser.')
+    } else {
+      pkmDownloadFile('Entity.cidme', JSON.stringify(currentEntity))
+    }
+  } else {
+    alert('ERROR: UNKNOWN ACTION REQUESTED')
+  }
+
+  return true
+}
+
+function pkmReadFile (fileName) {
+  if (device.platform.toLowerCase() === 'browser') {
+    alert('ERROR: This functionality does not work in the browser.')
+
+    return false
+  }
+
+  readFromFile(fileName, function (data) {
+    if (cidme.validate(JSON.parse(data)) === false) {
+      alert('ERROR:  Invalid CIDME Entity uploaded.')
+    } else {
+      currentEntity = JSON.parse(data)
+      document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+      pkmVisualizeEntity()
+    }
+  })
+}
+
+function pkmWriteFile (fileName) {
+  if (device.platform.toLowerCase() === 'browser') {
+    alert('ERROR: This functionality does not work in the browser.')
+
+    return false
+  }
+
+  // writeToFile(fileName, JSON.stringify(cidme.createEntityResource()))
+  writeToFile(fileName, JSON.stringify(currentEntity))
+}
+
+function pkmDownloadFile (filename, text) {
+  var element = document.createElement('a')
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+  // element.setAttribute('href', 'data:application/octet-stream,' + encodeURIComponent(text))
+  element.setAttribute('download', filename)
+
+  element.style.display = 'none'
+  document.body.appendChild(element)
+
+  element.click()
+
+  document.body.removeChild(element)
+}
+
+function pkmVisualizeEntity () {
+  $('div#ce_entityView').replaceWith('<div id="ce_entityView"></div>')
+
+  if (currentEntity === '' || cidme.validate(currentEntity) === false) { return false }
+
+  pkmVisualizeCidmeResource(currentEntity, null)
+
+  return true
+}
+
+function pkmVisualizeCidmeResource (cidmeResource, parentUri) {
+  console.log('Visualizing: Type: ' + cidmeResource['@type'] + ', URI: ' + cidmeResource['@id'])
+
+  /* ---------- */
+  // Figure out the target div we're appending to...
+  let targetDiv = ''
+  if (cidmeResource['@type'] === 'Entity') {
+    targetDiv = 'div#ce_entityView'
+  } else if (cidmeResource['@type'] === 'EntityContext') {
+    targetDiv = '#' + cidme.parseCidmeUri(parentUri)['id'] + '_entityContexts'
+  } else if (cidmeResource['@type'] === 'EntityContextDataGroup') {
+    targetDiv = '#' + cidme.parseCidmeUri(parentUri)['id'] + '_entityContextData'
+  } else if (cidmeResource['@type'] === 'EntityContextLinkGroup') {
+    targetDiv = '#' + cidme.parseCidmeUri(parentUri)['id'] + '_entityContextLinks'
+  } else if (cidmeResource['@type'] === 'MetadataGroup') {
+    targetDiv = '#' + cidme.parseCidmeUri(parentUri)['id'] + '_metadata'
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // Create HTML for this resource
+  let targetDivHtml = ''
+  if (cidmeResource['@type'] === 'Entity') {
+    targetDivHtml += '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityResource"> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+        '</div> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeEntityHeader"> ' +
+            'Type: ' + cidmeResource['@type'] + '<br /> ' +
+            'ID: ' + cidmeResource['@id'] + '<br /> ' +
+        '</div>'
+  } else if (cidmeResource['@type'] === 'EntityContext') {
+    targetDivHtml += '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityContextResource"> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+        '</div> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeEntityContextHeader"> ' +
+            'Type: ' + cidmeResource['@type'] + '<br /> ' +
+            'ID: ' + cidmeResource['@id'] + '<br /> ' +
+        '</div>'
+  } else if (cidmeResource['@type'] === 'EntityContextDataGroup') {
+    targetDivHtml += '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityContextDataGroupResource"> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+          '</div> ' +
+          '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeMetadataGroupHeader"> ' +
+              'Type: ' + cidmeResource['@type'] + '<br /> ' +
+              'ID: ' + cidmeResource['@id'] + '<br /> ' +
+          '</div>'
+  } else if (cidmeResource['@type'] === 'EntityContextLinkGroup') {
+    targetDivHtml += '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeEntityContextLinkGroupResource"> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+          '</div> ' +
+          '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeMetadataGroupHeader"> ' +
+            'Type: ' + cidmeResource['@type'] + '<br /> ' +
+            'ID: ' + cidmeResource['@id'] + '<br /> ' +
+        '</div>'
+  } else if (cidmeResource['@type'] === 'MetadataGroup') {
+    targetDivHtml += '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '" class="ce_CidmeMetadataGroupResource"> ' +
+        '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_control" class="ce_CidmeResourceControl"> ' +
+          '</div> ' +
+          '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_header" class="ce_CidmeMetadataGroupHeader"> ' +
+            'Type: ' + cidmeResource['@type'] + '<br /> ' +
+            'ID: ' + cidmeResource['@id'] + '<br /> ' +
+      '</div>'
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // Add CidmeData (for metadata, entityContextData, & entityContextLinks) HTML
+  if (cidmeResource['@type'] === 'MetadataGroup' || cidmeResource['@type'] === 'EntityContextDataGroup' || cidmeResource['@type'] === 'EntityContextLinkGroup') {
+    targetDivHtml += '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_data" class="ce_CidmeData"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_dataAdd" class="ce_CidmeDataAdd"> ' +
+    '</div>'
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // Add metadata HTML
+  targetDivHtml += '<br /> ' +
+    '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata_control"> ' +
+      'Metadata: &nbsp; ' +
+    '</div> ' +
+    '<br /> ' +
+    '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_metadata"> ' +
+  '</div>'
+  /* ---------- */
+
+  /* ---------- */
+  // Add entityContextData and entityContextLinks HTML
+  if (cidmeResource['@type'] === 'EntityContext') {
+    targetDivHtml += '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextData_control"> ' +
+        'EntityContextData: &nbsp; ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextData"> ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextLinks_control"> ' +
+        'EntityContextLinks: &nbsp; ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContextLinks"> ' +
+    '</div>'
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // Add entityContexts HTML
+  if (cidmeResource['@type'] === 'Entity' || cidmeResource['@type'] === 'EntityContext') {
+    targetDivHtml += '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContexts_control"> ' +
+        'EntityContexts: &nbsp; ' +
+      '</div> ' +
+      '<br /> ' +
+      '<div id="' + cidme.parseCidmeUri(cidmeResource['@id'])['id'] + '_entityContexts"> ' +
+    '</div>'
+  }
+  /* ---------- */
+
+  // Add final end div tag
+  targetDivHtml += '</div>'
+
+  // Add the HTML to the target div
+  $(targetDivHtml).appendTo(targetDiv)
+
+  /* ---------- */
+  // Add CidmeData (for metadata, entityContextData, & entityContextLinks) JS
+  if (cidmeResource['@type'] === 'MetadataGroup' || cidmeResource['@type'] === 'EntityContextDataGroup' || cidmeResource['@type'] === 'EntityContextLinkGroup') {
+    pkmVisualizeEntityItemData(cidmeResource, cidmeResource['@id'])
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // Add metadata JS
+  pkmAddResourceControl(cidmeResource['@id'], 'metadata', true)
+
+  if (cidmeResource.hasOwnProperty('metadata') && cidmeResource['metadata'].length > 0) {
+    for (let i = 0; i < cidmeResource['metadata'].length; i++) {
+      pkmVisualizeCidmeResource(cidmeResource['metadata'][i], cidmeResource['@id'])
+    }
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // Add entityContextData and entityContextLinks JS
+  if (cidmeResource['@type'] === 'EntityContext') {
+    pkmAddResourceControl(cidmeResource['@id'], 'entityContextData', true)
+    if (cidmeResource.hasOwnProperty('entityContextData') && cidmeResource['entityContextData'].length > 0) {
+      for (let i = 0; i < cidmeResource['entityContextData'].length; i++) {
+        pkmVisualizeCidmeResource(cidmeResource['entityContextData'][i], cidmeResource['@id'])
+      }
+    }
+
+    pkmAddResourceControl(cidmeResource['@id'], 'entityContextLinks', true)
+    if (cidmeResource.hasOwnProperty('entityContextLinks') && cidmeResource['entityContextLinks'].length > 0) {
+      for (let i = 0; i < cidmeResource['entityContextLinks'].length; i++) {
+        pkmVisualizeCidmeResource(cidmeResource['entityContextLinks'][i], cidmeResource['@id'])
+      }
+    }
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // Add entityContexts JS
+  if (cidmeResource['@type'] === 'Entity' || cidmeResource['@type'] === 'EntityContext') {
+    pkmAddResourceControl(cidmeResource['@id'], 'entityContexts', true)
+    if (cidmeResource.hasOwnProperty('entityContexts') && cidmeResource['entityContexts'].length > 0) {
+      for (let i = 0; i < cidmeResource['entityContexts'].length; i++) {
+        pkmVisualizeCidmeResource(cidmeResource['entityContexts'][i], cidmeResource['@id'])
+      }
+    }
+  }
+  /* ---------- */
+
+  // Add the entity control JS
+  pkmAddResourceControl(cidmeResource['@id'])
+
+  console.log('Visualized: Type: ' + cidmeResource['@type'] + ', URI: ' + cidmeResource['@id'])
+
+  return true
+}
+
+function pkmAddResourceControl (resourceUri, targetResourceType, isArrayOfItems) {
+  if (!isArrayOfItems) { isArrayOfItems = false } else { isArrayOfItems = true }
+  console.log('isArrayOfItems: ' + JSON.stringify(isArrayOfItems) + ' - ' + resourceUri)
+  var resourceId = cidme.parseCidmeUri(resourceUri)['id']
+  var resourceType = cidme.parseCidmeUri(resourceUri)['resourceType']
+  if (isArrayOfItems === true) {
+    if (targetResourceType === 'metadata') { resourceId += '_metadata' } else if (targetResourceType === 'entityContexts') { resourceId += '_entityContexts' } else if (targetResourceType === 'entityContextData') { resourceId += '_entityContextData' } else if (targetResourceType === 'entityContextLinks') { resourceId += '_entityContextLinks' } else { return false }
+  }
+
+  /* ---------- */
+  // "Hide" Functionality
+
+  // HTML
+  $('<span id="' + resourceId + '_controlHide" class="ce_CidmeResourceHide"></span>').appendTo('#' + resourceId + '_control')
+
+  // JS
+  $(document).on('click', '#' + resourceId + '_controlHide', function () {
+    $('#' + resourceId + '_controlHide').hide()
+    $('#' + resourceId + '_controlShow').show()
+    $('#' + resourceId + '_controlEditData').hide()
+
+    if (isArrayOfItems === true) {
+      $('#' + resourceId).hide()
+    } else {
+      $('#' + resourceId + '_header').hide()
+      $('#' + resourceId + '_metadata_control').hide()
+      $('#' + resourceId + '_metadata').hide()
+      $('#' + resourceId + '_data').hide()
+      $('#' + resourceId + '_entityContexts_control').hide()
+      $('#' + resourceId + '_entityContexts').hide()
+      $('#' + resourceId + '_entityContextData_control').hide()
+      $('#' + resourceId + '_entityContextData').hide()
+      $('#' + resourceId + '_entityContextLinks_control').hide()
+      $('#' + resourceId + '_entityContextLinks').hide()
+    }
+
+    // console.log('Clicked Hide');
+  })
+  /* ---------- */
+
+  /* ---------- */
+  // "Show" Functionality
+
+  // HTML
+  $('<span id="' + resourceId + '_controlShow" class="ce_CidmeResourceShow"></span>').appendTo('#' + resourceId + '_control')
+  $('#' + resourceId + '_controlShow').hide()
+
+  // JS
+  $(document).on('click', '#' + resourceId + '_controlShow', function () {
+    $('#' + resourceId + '_controlShow').hide()
+    $('#' + resourceId + '_controlHide').show()
+    $('#' + resourceId + '_controlEditData').show()
+
+    if (isArrayOfItems === true) {
+      $('#' + resourceId).show()
+    } else {
+      $('#' + resourceId + '_header').show()
+      $('#' + resourceId + '_metadata_control').show()
+      $('#' + resourceId + '_metadata').show()
+      $('#' + resourceId + '_data').show()
+      $('#' + resourceId + '_entityContexts_control').show()
+      $('#' + resourceId + '_entityContexts').show()
+      $('#' + resourceId + '_entityContextData_control').show()
+      $('#' + resourceId + '_entityContextData').show()
+      $('#' + resourceId + '_entityContextLinks_control').show()
+      $('#' + resourceId + '_entityContextLinks').show()
+    }
+
+    // console.log('Clicked Show');
+  })
+  /* ---------- */
+
+  /* ---------- */
+  // "Delete" functionality
+
+  // HTML
+  if (isArrayOfItems === false) {
+    $('<span id="' + resourceId + '_controlDelete" class="ce_CidmeResourceDelete"></span>').appendTo('#' + resourceId + '_control')
+
+    // Delete JS
+    $(document).on('click', '#' + resourceId + '_controlDelete', function () {
+      console.log('Clicked Delete')
+
+      pkmDelete(resourceUri)
+    })
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // "Add New" Functionality
+  if (isArrayOfItems === true) {
+    $('<span id="' + resourceId + '_controlAddNew" class="ce_CidmeResourceAddNew"></span>').appendTo('#' + resourceId + '_control')
+
+    // JS
+    $(document).on('click', '#' + resourceId + '_controlAddNew', function () {
+      console.log('Clicked Add - ' + resourceType + ': ' + resourceUri)
+
+      let newResource = null
+
+      if (targetResourceType === 'metadata') {
+        newResource = cidme.createMetadataGroupResource(resourceUri)
+      } else if (targetResourceType === 'entityContexts') {
+        newResource = cidme.createEntityContextResource(resourceUri)
+      } else if (targetResourceType === 'entityContextData') {
+        newResource = cidme.createEntityContextDataGroupResource(resourceUri)
+      } else if (targetResourceType === 'entityContextLinks') {
+        newResource = cidme.createEntityContextLinkGroupResource(resourceUri)
+      }
+
+      if (newResource !== null) {
+        pkmVisualizeCidmeResource(newResource, resourceUri)
+        currentEntity = cidme.addResourceToParent(resourceUri, currentEntity, newResource)
+        document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+      }
+    })
+  }
+  /* ---------- */
+
+  /* ---------- */
+  // "Add Data" Functionality
+  if (isArrayOfItems === false && (resourceType === 'MetadataGroup' || resourceType === 'EntityContextDataGroup' || resourceType === 'EntityContextLinkGroup')) {
+    // HTML
+    // $('<span id="' + resourceId + '_controlAddData" class="ce_CidmeResourceAddData"></span>').appendTo('#' + resourceId + '_control')
+    $('<span id="' + resourceId + '_controlEditData" class="ce_CidmeResourceEditData"></span>').appendTo('#' + resourceId + '_control')
+
+    // JS
+    $(document).on('click', '#' + resourceId + '_controlEditData', function () {
+      $('#' + resourceId + '_dataEdit').show()
+      $('#' + resourceId + '_dataView').hide()
+    })
+
+    // TODO TODO TODO
+  }
+  /* ---------- */
+
+  return true
+}
+
+function pkmDelete (resourceId) {
+  document.getElementById('ce_entityData').value = JSON.stringify(cidme.deleteResource(resourceId, currentEntity), null, 2)
+
+  $('#' + cidme.parseCidmeUri(resourceId)['id']).hide()
+}
+
+/*
+function pkmDeleteDataItemData (parentUri, i) {
+  // TODO TODO TODO
+  // Also remove RDF triple... from Entity JSON and ce_entityData...
+
+  // document.getElementById('ce_entityData').value = JSON.stringify(cidme.deleteResource(resourceId, currentEntity), null, 2)
+
+  $('#' + parentUri + '_data_' + i).hide()
+}
+ */
+
+function pkmVisualizeEntityItemData (cidmeResource, parentUri) {
+  var tempData = ''
+  if (cidmeResource.hasOwnProperty('data') && cidmeResource['data'].length > 0) {
+    tempData = JSON.stringify(cidmeResource['data'], null, 2)
+  }
+
+  $('<div id="' + cidme.parseCidmeUri(parentUri)['id'] + '_dataEdit" class="ce_CidmeDataItemEdit"> ' +
+    '<textarea id="' + cidme.parseCidmeUri(parentUri)['id'] + '_dataEdit_textarea" class="ce_CidmeDataItemTextarea">' + tempData + '</textarea><br />' +
+    '<span id="' + cidme.parseCidmeUri(parentUri)['id'] + '_dataEdit_cancel" class="ce_CidmeDataItemEditCancel"></span>' +
+    '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_data')
+
+  $('#' + cidme.parseCidmeUri(parentUri)['id'] + '_dataEdit').hide()
+
+  $('<div id="' + cidme.parseCidmeUri(parentUri)['id'] + '_dataView" class="ce_CidmeData">' +
+    '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_data')
+
+  // JS
+  $(document).on('click', '#' + cidme.parseCidmeUri(parentUri)['id'] + '_dataEdit_cancel', function () {
+    $('#' + cidme.parseCidmeUri(parentUri)['id'] + '_dataEdit').hide()
+    $('#' + cidme.parseCidmeUri(parentUri)['id'] + '_dataView').show()
+  })
+
+  if (cidmeResource.hasOwnProperty('data') && cidmeResource['data'].length > 0) {
+    /* ********************************************************************** */
+    // JSON-LD PROCESSING
+
+    // RDF/NQUADS
+    // /*
+    let nquadsArray = null
+    jsonld.toRDF(cidmeResource['data'], { format: 'application/n-quads' }, (err, nquads) => {
+      if (!err) {
+        // console.log('JSON-LD NQUADS OUTPUT: ' + JSON.stringify(nquads))
+        // console.log(nquads)
+
+        var rdfUri = 'https://example.org/resource.ttl'
+        var rdfBody = nquads
+        var rdfMimeType = 'text/turtle'
+        var rdfStore = $rdf.graph()
+
+        try {
+          $rdf.parse(rdfBody, rdfStore, rdfUri, rdfMimeType)
+        } catch (err) {
+          console.log(err)
+        }
+
+        // console.log(JSON.stringify(rdfStore.match()))
+        nquadsArray = rdfStore.match()
+        if (typeof nquadsArray === 'object' && nquadsArray.length > 0) {
+          for (let i = 0; i < nquadsArray.length; i++) {
+            $('<div id="' + cidme.parseCidmeUri(parentUri)['id'] + '_data_' + i + '" class="ce_CidmeDataItem"> ' +
+                '<span id="' + cidme.parseCidmeUri(parentUri)['id'] + '_data_' + i + '_itemData' + '" class="ce_CidmeDataItemView"> ' +
+                  nquadsArray[i]['predicate']['value'] + ': ' + nquadsArray[i]['object']['value'] +
+                '</span>' +
+                '<span id="' + cidme.parseCidmeUri(parentUri)['id'] + '_data_' + i + '_itemControl' + '" class="ce_CidmeDataItemControl"> ' +
+                  '<!-- <span id="' + cidme.parseCidmeUri(parentUri)['id'] + '_data_' + i + '_itemControlDelete' + '" class="ce_CidmeResourceDelete"></span> -->' +
+                '</span>' +
+              '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_dataView')
+
+            // Delete JS
+            /*
+            $(document).on('click', '#' + cidme.parseCidmeUri(parentUri)['id'] + '_data_' + i + '_itemControlDelete', function () {
+              // console.log(cidme.parseCidmeUri(parentUri)['id'], i)
+              pkmDeleteDataItemData(cidme.parseCidmeUri(parentUri)['id'], i)
+            })
+             */
+          }
+        }
+      } else {
+        console.log('JSON-LD ERROR: ' + JSON.stringify(err))
+      }
+    })
+    //  */
+
+    // EXPANDED JSON-LD
+    /*
+    jsonld.expand(cidmeResource['data'], (err, expanded) => {
+      if (!err) {
+        console.log('JSON-LD EXPANDED OUTPUT: ' + JSON.stringify(expanded))
+      } else {
+        console.log('JSON-LD ERROR: ' + JSON.stringify(err))
+      }
+    })
+     */
+    /* ********************************************************************** */
+
+    /* ********************************************************************** */
+    // NON-JSON-LD PROCESSING
+    /*
+    for (let i = 0; i < cidmeResource['data'].length; i++) {
+      for (var property in cidmeResource['data'][i]) {
+        if (cidmeResource['data'][i].hasOwnProperty(property)) {
+          if (
+            typeof property === 'string' &&
+            (
+              property === '@type' ||
+              property.substring(0, 1) !== '@'
+            )
+          ) {
+            $('<div id="' + cidme.parseCidmeUri(parentUri)['id'] + '_data_' + i + '_' + property + '" class="ce_CidmeDataItem"> ' +
+                property + ': ' + cidmeResource['data'][i][property] +
+                '</div>').appendTo('#' + cidme.parseCidmeUri(parentUri)['id'] + '_data')
+
+            console.log('Appending Data.')
+          }
+        }
+      }
+    }
+     */
+    /* ********************************************************************** */
+  }
+
+  return true
+}
+
+function readFromFile (fileName, cb) {
+  var pathToFile = cordova.file.dataDirectory + fileName
+  window.resolveLocalFileSystemURL(pathToFile, function (fileEntry) {
+    fileEntry.file(function (file) {
+      var reader = new FileReader()
+
+      // reader.onloadend = function (e) {
+      reader.onloadend = function () {
+        cb(JSON.parse(this.result))
+      }
+
+      reader.readAsText(file)
+    }, errorHandler.bind(null, fileName))
+  }, errorHandler.bind(null, fileName))
+}
+
+function writeToFile (fileName, data) {
+  data = JSON.stringify(data, null, '\t')
+  window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (directoryEntry) {
+    directoryEntry.getFile(fileName, { create: true }, function (fileEntry) {
+      fileEntry.createWriter(function (fileWriter) {
+        // fileWriter.onwriteend = function (e) {
+        fileWriter.onwriteend = function () {
+          // for real-world usage, you might consider passing a success callback
+          console.log('Write of file "' + fileName + '"" completed.')
+        }
+
+        fileWriter.onerror = function (e) {
+          // you could hook this up with our global error handler, or pass in an error callback
+          console.log('Write failed: ' + e.toString())
+        }
+
+        var blob = new Blob([data], { type: 'text/plain' })
+        fileWriter.write(blob)
+      }, errorHandler.bind(null, fileName))
+    }, errorHandler.bind(null, fileName))
+  }, errorHandler.bind(null, fileName))
+}
+
+function errorHandler (fileName, e) {
+  var msg = ''
+
+  switch (e.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'Storage quota exceeded'
+      break
+    case FileError.NOT_FOUND_ERR:
+      msg = 'File not found'
+      break
+    case FileError.SECURITY_ERR:
+      msg = 'Security error'
+      break
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'Invalid modification'
+      break
+    case FileError.INVALID_STATE_ERR:
+      msg = 'Invalid state'
+      break
+    default:
+      msg = 'Unknown error'
+      break
+  };
+
+  console.log('Error (' + fileName + '): ' + msg)
+  alert('Error (' + fileName + '): ' + msg)
+}
+
+function pkmTestGet () {
+  alert('TESTING GET...')
+
+  //  url : "https://ionic/index.html",
+  //  url : "https://joethielen.dyndns.org",
+  //  url : "https://cidme/x.php",
+  //  url : "https://joethielen.dyndns.org/automite/automite.php?automite_cmd=beeper&automite_key=12345543210987667890",
+  $.ajax({
+    type: 'GET',
+    url: 'https://joethielen.dyndns.org/x.php'
+  })
+    .done(function (data) {
+      alert(data)
+    })
+    .fail(function () {
+      alert('Error fetching data.')
+    })
+}

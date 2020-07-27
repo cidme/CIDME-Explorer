@@ -1,0 +1,11 @@
+{
+  "background_color": "#FFF",
+  "display": "standalone",
+  "name": "CIDMEExplorer",
+  "short_name": "CIDMEExplorer",
+  "version": "com.jtdigi.cidmeexplorer",
+  "description": "A proof-of-concept app demonstrating a User Interface (UI) for visual CIDME Entity manipulation.",
+  "author": "Joe Thielen",
+  "icons": [],
+  "start_url": "index.html"
+}

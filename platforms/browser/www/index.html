@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/cidmeExplorer.css">
+        <title>CIDME Explorer</title>
+    </head>
+    <body>
+        <div class="container-fluid ce_userSelectableData">
+            <div class="row ce_headerSection">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-12">
+                            <h1><span class="ce_productName"></span></h1>
+                            <div id="deviceready" class="blink">
+                                <p class="event listening">Please wait!</p>
+                                <p class="event received">Ready</p>
+                            </div>
+                            <div id="ce_cordovaPlatform" class="ce_cordovaPlatform">
+                                Device/platform: UNKNOWN
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 col-lg-2">
+                            <button id="ce_createEntity">Create entity</button>
+                            <select id="ce_createEntityType" name="ce_createEntityType">
+                                <option value="Blank" selected>Blank</option>
+                                <option value="Person">Person</option>
+                                <option value="Organization">Organization</option>
+                                <option value="Place">Place</option>
+                                <option value="Thing">Thing</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-lg-2">
+                            <div id="ce_downloadButton">
+                                <button id="ce_downloadEntity">Download entity</button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-5">                            
+                            <form id="fileUploadForm">
+                                Upload CIDME Entity: <input id="fileUpload" name="fileUploads[]" multiple="" type="file" /><br />
+                            </form>
+                        </div>
+                        <div class="col-12 col-lg-5">
+                            <div id="ce_readWriteFileButtons">
+                                File Name: <input id="ce_fileName" name="ce_fileName" value="example.json"></input>
+                                <button id="ce_readFile">Read file</button>
+                                <button id="ce_writeFile">Write file</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-7 col-lg-7 col-xl-5 min-vh-100">
+                    <div class="row min-vh-100">
+                        <div class="col-12 ce_subSection">
+                            <hr>
+                            <div class="ce_subSectionHeader">Entity Visualization:</div>
+                            <br />
+                            <br />
+                            <div id="ce_entityView"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-5 col-lg-5 col-xl-3 min-vh-100">
+                    <div class="row min-vh-100">
+                        <div class="col-12 ce_subSection">
+                            <hr>
+                            <div class="ce_subSectionHeader">Vocabulary / Ontology:</div>
+                            <br />
+                            <hr width="50%">
+                            <div class="ce_subSectionSectionHeader">Group Data Types:</div>
+                            <br />
+                            Skeleton:<br />
+                            <textarea rows="6">
+[
+  {
+    "@context": "http://cidme.net/vocab/core/0.4.0/jsonldcontext.json",
+    "@type": "INSERT_TYPE_HERE"
+  }
+]
+                            </textarea>
+                            <br />
+                            <div class="ce_userSelectableData">
+                                CIDME Core Group Data Types:<br />
+                                <ul>
+                                    <li>CreatedMetadata</li>
+                                    <li>ModifiedMetadata</li>
+                                    <li>LastModifiedMetadata</li>
+                                    <li>LabelMetadata</li>
+                                    <li>NoteMetadata</li>
+                                    <li>ImageMetadata</li>
+                                </ul>
+                                CIDME Extension Group Data Types:<br />
+                                <ul>
+                                    <li>DefaultMetadata</li>
+                                    <li>EntityTypeMetadata</li>
+                                    <li>StatusMetadata</li>
+                                    <li>TypeMetadata</li>
+                                    <li>NoteMetadata</li>
+                                    <li>ImageMetadata</li>
+                                </ul>
+                            </div>
+                            <br />
+                            <hr width="50%">
+                            <div class="ce_subSectionSectionHeader">Data (context / JSON-LD enabled):</div>
+                            <br />
+                            Skeleton:<br />
+                            <textarea rows="6">
+[
+  {
+    "@context": "INSERT_CONTEXT_HERE",
+    "startDate": "2017"
+  }
+]
+                            </textarea>
+                            <br />
+                            Common contexts:
+                            <ul>
+                                <li>http://schema.org</li>
+                                <li>http://cidme.net/vocab/core/0.4.0/jsonldcontext.json</li>
+                                <li>http://cidme.net/vocab/ext/0.1.0/jsonldcontext.json</li>
+                            </ul>
+                            <hr width="50%">
+                            <div class="ce_subSectionSectionHeader">Data (vocab / non-JSON-LD enabled):</div>
+                            <br />
+                            Skeleton:<br />
+                            <textarea rows="6">
+[
+  {
+    "@context": {
+    "@vocab": "INSERT_VOCAB_HERE"
+    },
+    "created": "2020-07-26T13:15:18.027Z",
+    "creator": null
+  }
+]
+                            </textarea>
+                            <br />
+                            Common vocabs:
+                            <ul>
+                                <li>http://purl.org/dc/terms/</li>
+                                <li>http://xmlns.com/foaf/0.1/</li>
+                                <li>http://www.w3.org/2004/02/skos/core#</li>
+                                <li>http://www.w3.org/2006/vcard/ns</li>
+                                <li>http://purl.org/vocab/relationship/</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-12 col-lg-12 col-xl-4 min-vh-100">
+                    <div class="row min-vh-100">
+                        <div class="col-12 ce_subSection">
+                            <hr>
+                            <div class="ce_subSectionHeader">Entity CIDME JSON:</div>
+                            <br />
+                            <br />
+                            <span id="ce_jsonHide" class="ce_JsonHide"></span>
+                            <span id="ce_jsonShow" class="ce_JsonShow"></span>
+                            <br />
+                            <br />
+                            <textarea id="ce_entityData" rows="40" wrap="off"></textarea>
+                            <br />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript" src="js/jquery-3.5.1.slim.min.js"></script>
+        <script type="text/javascript" src="js/ajv.bundle.js"></script>
+        <script type="text/javascript" src="js/uuid.js"></script>
+        <script type="text/javascript" src="js/cidme.js"></script>
+        <script type="text/javascript" src="js/jsonld.js"></script>
+        <script type="text/javascript" src="js/rdflib.min.js"></script>
+        <script type="text/javascript" src="js/cidmeExplorer.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="js/index.js"></script>
+        <script type="text/javascript" src="js/popper.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    </body>
+</html>

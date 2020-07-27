@@ -1,0 +1,194 @@
+textarea {
+    overflow: scroll; 
+    overflow-y: scroll; 
+    overflow-x: scroll; 
+    width:100%;
+    //overflow:-moz-scrollbars-vertical;
+    //overflow:-moz-scrollbars-horizontal;
+}
+
+.ce_cordovaPlatform {
+   text-align: center;
+   font-weight: bold;
+}
+
+.ce_CidmeEntityResource {
+   background-color: #dddddd;
+   text-align: left;
+   color:black;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeEntityContextResource {
+   background-color: #aaaaaa;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeEntityContextDataGroupResource {
+   background-color: #ffffff;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeEntityContextLinkGroupResource {
+   background-color: #ffffff;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeMetadataGroupResource {
+   background-color: #ffffff;
+   padding:20px; 
+   border: 1px solid black;
+   border-radius: 5px;
+   margin: 5px;
+}
+
+.ce_CidmeEntityHeader {
+   color: #000000;
+}
+   
+.ce_CidmeEntityContextHeader {
+   color: #000000;
+}
+
+.ce_CidmeEntityContextDataGroupHeader {
+   color: #000000;
+}
+
+.ce_CidmeEntityContextLinkGroupHeader {
+   color: #000000;
+}
+
+.ce_CidmeMetadataGroupHeader {
+   color: #000000;
+}
+
+.ce_CidmeData {
+   color: #888888;
+}
+
+.ce_CidmeGroupDataType {
+   color: #666666;
+}
+
+.ce_productName::after {
+   content: "CIDME Explorer";
+}
+
+.ce_CidmeResourceHide::after {
+   content: " (HIDE) ";
+}
+
+.ce_CidmeResourceShow::after {
+   content: " (SHOW) ";
+}
+
+.ce_CidmeResourceDelete::after {
+   content: " (DELETE) ";
+}
+
+.ce_CidmeResourceAddNew::after {
+   content: " (ADD NEW) ";
+}
+
+.ce_CidmeResourceAddData::after {
+   content: " (ADD DATA) ";
+}
+
+.ce_CidmeResourceEditData::after {
+   content: " (EDIT DATA) ";
+}
+
+.ce_CidmeResourceAddGroupDataType::after {
+   content: " (ADD GROUP DATA TYPE) ";
+}
+
+.ce_CidmeResourceEditGroupDataType::after {
+   content: " (EDIT GROUP DATA TYPE) ";
+}
+
+.ce_CidmeDataItemEditCancel::after {
+   color: #000000;
+   content: " (CANCEL EDIT) ";
+}
+
+.ce_CidmeDataItemEditSubmit::after {
+   color: #000000;
+   content: " (SUBMIT EDIT) ";
+}
+
+.ce_CidmeGroupDataTypeItemEditCancel::after {
+   color: #000000;
+   content: " (CANCEL EDIT) ";
+}
+
+.ce_CidmeGroupDataTypeItemEditSubmit::after {
+   color: #000000;
+   content: " (SUBMIT EDIT) ";
+}
+
+.ce_CidmeDataItemTextarea {
+    height: 20em;
+}
+
+.ce_CidmeGroupDataTypeItemTextarea {
+   height: 20em;
+}
+
+.ce_CidmeResourceEdit::after {
+   content: " (EDIT) ";
+}
+
+.ce_JsonHide::after {
+   content: " (HIDE) ";
+}
+
+.ce_JsonShow::after {
+   content: " (SHOW) ";
+}
+
+.ce_headerSection {
+   padding-bottom: 2em;
+   border-bottom: 1px solid white;
+}
+
+.ce_subSection {
+   border-left: 1px solid white;
+   border-right: 1px solid white;
+}
+
+.ce_subSectionHeader {
+   font-weight: bold;
+   text-decoration: underline;
+   text-align: center;
+   text-transform: uppercase;
+}
+
+.ce_subSectionSectionHeader{
+   font-weight: bold;
+   text-align: left;
+}
+
+.ce_userSelectableData {
+   -webkit-user-select: text ce_headerSection
+   -ms-user-select: text;
+   user-select: text;
+}
+
+.ce_userSelectableData2 {
+   -webkit-user-select: auto;
+   -moz-user-select: auto;
+   -ms-user-select: auto;
+   user-select: auto;
+}

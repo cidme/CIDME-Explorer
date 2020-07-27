@@ -1,0 +1,13 @@
+/OLD
+/www/OLD
+/www/css/OLD
+/www/js/OLD
+/www/img/OLD
+/node_modules
+package-lock.json
+cidmeexplorer.code-workspace
+*.swp
+/www/*.swp
+/www/css/*.swp
+/www/js/*.swp
+/www/img/*.swp

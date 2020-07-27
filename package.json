@@ -1,0 +1,53 @@
+{
+    "name": "com.jtdigi.cidmeexplorer",
+    "displayName": "CIDME Explorer",
+    "version": "0.1.1",
+    "description": "A proof-of-concept app demonstrating a User Interface (UI) for visual CIDME Entity manipulation.",
+    "main": "index.js",
+    "scripts": {
+        "test": "standard --fix www/js/index.js && standard --fix www/js/cidmeExplorer.js",
+        "build": "cordova build",
+        "buildBrowser": "cordova build browser",
+        "buildAndroid": "cordova build android"
+    },
+    "author": {
+        "name": "Joe Thielen",
+        "email": "joe@joethielen.com"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "bootstrap": "^4.5.0",
+        "cidme": "^0.6.0",
+        "cordova-android": "^7.1.4",
+        "cordova-browser": "^5.0.4",
+        "cordova-plugin-device": "^2.0.3",
+        "cordova-plugin-file": "^6.0.2",
+        "cordova-plugin-whitelist": "git+https://github.com/apache/cordova-plugin-whitelist.git",
+        "jquery": "^3.5.1",
+        "jsonld": "^3.1.1",
+        "n3": "^1.5.0",
+        "popper.js": "^1.16.0",
+        "rdflib": "^0.19.1",
+        "uuidjs": "^4.2.5"
+    },
+    "cordova": {
+        "plugins": {
+            "cordova-plugin-whitelist": {},
+            "cordova-plugin-file": {},
+            "cordova-plugin-device": {}
+        },
+        "platforms": [
+            "browser",
+            "android"
+        ]
+    },
+    "devDependencies": {
+        "eslint": "^5.16.0",
+        "eslint-config-google": "^0.11.0",
+        "eslint-config-standard": "^12.0.0",
+        "eslint-plugin-import": "^2.22.0",
+        "eslint-plugin-node": "^8.0.1",
+        "eslint-plugin-promise": "^4.2.1",
+        "eslint-plugin-standard": "^4.0.1"
+    }
+}

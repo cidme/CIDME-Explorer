@@ -1,0 +1,252 @@
+'use strict'
+
+// eslint globals for CIDME
+/* global Cidme, Ajv, UUID */
+// eslint globals for JS
+/* global alert */
+// eslint globals for JQuery
+/* global $ */
+// eslint globals for Cordova
+/* global cordova, device */
+// eslint globals for ???
+/* global FileReader, FileError, Blob */
+
+let cidme = new Cidme(new Ajv({ schemaId: 'auto' }), UUID, false)
+let currentEntity = ''
+
+$('#ce_createEntity').on('touchend', function () { pkmAction('createEntity') })
+$('#ce_createEntity').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmAction('createEntity')
+  }
+})
+
+$('#ce_viewEntity').on('touchend', function () { pkmAction('viewEntity') })
+$('#ce_viewEntity').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmAction('viewEntity')
+  }
+})
+
+$('#ce_downloadEntity').on('touchend', function () { pkmAction('downloadEntity') })
+$('#ce_downloadEntity').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmAction('downloadEntity')
+  }
+})
+
+$('#ce_readFile').on('touchend', function () { pkmReadFile('example.json') })
+$('#ce_readFile').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmReadFile('example.json')
+  }
+})
+
+$('#ce_writeFile').on('touchend', function () { pkmWriteFile('example.json') })
+$('#ce_writeFile').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmWriteFile('example.json')
+  }
+})
+
+$('#ce_testGet').on('touchend', function () { pkmTestGet() })
+$('#ce_testGet').on('click', function () {
+  if (device.platform.toLowerCase() !== 'android') {
+    pkmTestGet()
+  }
+})
+
+document.forms['fileUploadForm'].elements['fileUpload'].onchange = function (evt) {
+  if (!window.FileReader) {
+    alert('ERROR: This functionality does not work in your browser.')
+
+    return false;
+  }
+
+  var reader = new FileReader()
+
+  reader.onload = function (evt) {
+    if (evt.target.readyState !== 2) return
+    if (evt.target.error) {
+      alert('ERROR: An unexpected error occured while uploading file.')
+      return
+    }
+
+    // filecontent = evt.target.result;
+
+    if (cidme.validate(JSON.parse(evt.target.result)) === false) {
+        alert('ERROR:  Invalid CIDME Entity uploaded.')
+    } else {
+        currentEntity = JSON.parse(evt.target.result)
+        document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+    }
+  }
+
+  reader.readAsText(evt.target.files[0])
+}
+
+document.getElementById('ce_entityData').onchange = function () {
+    //alert('Change detected!')
+    if (cidme.validate(JSON.parse(document.getElementById('ce_entityData').value)) === false) {
+        alert('ERROR:  Invalid CIDME Entity.')
+    } else {
+        currentEntity = JSON.parse(document.getElementById('ce_entityData').value)
+    }
+}
+
+function pkmAction (action) {
+  // alert(action);
+
+  if (action === 'createEntity') {
+    // alert(JSON.stringify(cidme.createEntityResource()));
+    currentEntity = cidme.createEntityResource()
+
+    //document.forms['fileUploadForm'].elements['fileUploadData'].value = JSON.stringify(currentEntity)
+    document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+
+    //alert('Entity created.')
+  } else if (action === 'viewEntity') {
+    //alert(JSON.stringify(currentEntity))
+  } else if (action === 'downloadEntity') {
+    if (device.platform.toLowerCase() === 'android') {
+        alert('ERROR: This functionality does not work in your browser.')
+    } else {
+        pkmDownloadFile('Entity.cidme', JSON.stringify(currentEntity))
+    }
+  } else {
+    alert('ERROR: UNKNOWN ACTION REQUESTED')
+  }
+
+  return true
+}
+
+function pkmReadFile (fileName) {
+  var fileData
+
+  if (device.platform.toLowerCase() === 'browser') {
+    alert('ERROR: This functionality does not work in the browser.')
+
+    return false
+  }
+
+  readFromFile(fileName, function (data) {
+
+    if (cidme.validate(JSON.parse(data)) === false) {
+      alert('ERROR:  Invalid CIDME Entity uploaded.')
+    } else {
+      currentEntity = JSON.parse(data)
+      document.getElementById('ce_entityData').value = JSON.stringify(currentEntity, null, 2)
+    }
+  })
+}
+
+function pkmWriteFile (fileName) {
+  if (device.platform.toLowerCase() === 'browser') {
+    alert('ERROR: This functionality does not work in the browser.')
+
+    return false
+  }
+
+  //writeToFile(fileName, JSON.stringify(cidme.createEntityResource()))
+  writeToFile(fileName, JSON.stringify(currentEntity))
+}
+
+function pkmDownloadFile (filename, text) {
+  var element = document.createElement('a')
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
+  //element.setAttribute('href', 'data:application/octet-stream,' + encodeURIComponent(text))
+  element.setAttribute('download', filename)
+
+  element.style.display = 'none'
+  document.body.appendChild(element)
+
+  element.click()
+
+  document.body.removeChild(element)
+}
+
+function readFromFile (fileName, cb) {
+  var pathToFile = cordova.file.dataDirectory + fileName
+  window.resolveLocalFileSystemURL(pathToFile, function (fileEntry) {
+    fileEntry.file(function (file) {
+      var reader = new FileReader()
+
+      // reader.onloadend = function (e) {
+      reader.onloadend = function () {
+        cb(JSON.parse(this.result))
+      }
+
+      reader.readAsText(file)
+    }, errorHandler.bind(null, fileName))
+  }, errorHandler.bind(null, fileName))
+}
+
+function writeToFile (fileName, data) {
+  data = JSON.stringify(data, null, '\t')
+  window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function (directoryEntry) {
+    directoryEntry.getFile(fileName, { create: true }, function (fileEntry) {
+      fileEntry.createWriter(function (fileWriter) {
+        // fileWriter.onwriteend = function (e) {
+        fileWriter.onwriteend = function () {
+          // for real-world usage, you might consider passing a success callback
+          console.log('Write of file "' + fileName + '"" completed.')
+        }
+
+        fileWriter.onerror = function (e) {
+          // you could hook this up with our global error handler, or pass in an error callback
+          console.log('Write failed: ' + e.toString())
+        }
+
+        var blob = new Blob([data], { type: 'text/plain' })
+        fileWriter.write(blob)
+      }, errorHandler.bind(null, fileName))
+    }, errorHandler.bind(null, fileName))
+  }, errorHandler.bind(null, fileName))
+}
+
+function errorHandler (fileName, e) {
+  var msg = ''
+
+  switch (e.code) {
+    case FileError.QUOTA_EXCEEDED_ERR:
+      msg = 'Storage quota exceeded'
+      break
+    case FileError.NOT_FOUND_ERR:
+      msg = 'File not found'
+      break
+    case FileError.SECURITY_ERR:
+      msg = 'Security error'
+      break
+    case FileError.INVALID_MODIFICATION_ERR:
+      msg = 'Invalid modification'
+      break
+    case FileError.INVALID_STATE_ERR:
+      msg = 'Invalid state'
+      break
+    default:
+      msg = 'Unknown error'
+      break
+  };
+
+  console.log('Error (' + fileName + '): ' + msg)
+  alert('Error (' + fileName + '): ' + msg)
+}
+
+function pkmTestGet () {
+  alert('TESTING GET...')
+
+  //  url : "https://ionic/index.html",
+  //  url : "https://joethielen.dyndns.org",
+  //  url : "https://cidme/x.php",
+  //  url : "https://joethielen.dyndns.org/automite/automite.php?automite_cmd=beeper&automite_key=12345543210987667890",
+  $.ajax({
+    type: 'GET',
+    url: 'https://joethielen.dyndns.org/x.php'
+  })
+    .done(function (data) {
+      alert(data)
+    })
+    .fail(function () {
+      alert('Error fetching data.')
+    })
+}
