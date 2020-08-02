@@ -15,8 +15,10 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <icon src="www/img/cidme-icon_logo-48x48.png" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <icon background="www/img/cidme-icon_logo_background-432x432.png" foreground="www/img/cidme-icon_logo_foreground-432x432.png" src="www/img/cidme-icon_logo-48x48.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
@@ -26,6 +28,7 @@
     <plugin name="cordova-plugin-whitelist" spec="https://github.com/apache/cordova-plugin-whitelist" />
     <allow-navigation href="*" />
     <plugin name="cordova-plugin-device" spec="^2.0.2" />
+    <plugin name="cordova-sqlite-storage" spec="^5.0.1" />
     <engine name="browser" spec="^5.0.4" />
     <engine name="android" spec="^7.1.4" />
 </widget>

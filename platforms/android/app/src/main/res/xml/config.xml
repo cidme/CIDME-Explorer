@@ -12,6 +12,9 @@
         <param name="android-package" value="org.apache.cordova.whitelist.WhitelistPlugin" />
         <param name="onload" value="true" />
     </feature>
+    <feature name="SQLitePlugin">
+        <param name="android-package" value="io.sqlc.SQLitePlugin" />
+    </feature>
     <name>CIDMEExplorer</name>
     <description>
         A proof-of-concept app demonstrating a User Interface (UI) for visual CIDME Entity manipulation.
@@ -27,7 +30,9 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <icon src="www/img/cidme-icon_logo-48x48.png" />
     <allow-navigation href="*" />
     <allow-intent href="market:*" />
+    <icon background="www/img/cidme-icon_logo_background-432x432.png" foreground="www/img/cidme-icon_logo_foreground-432x432.png" src="www/img/cidme-icon_logo-48x48.png" />
     <preference name="loglevel" value="DEBUG" />
 </widget>

@@ -15,5 +15,6 @@
     <allow-intent href="sms:*" />
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
+    <icon src="www/img/cidme-icon_logo-48x48.png" />
     <allow-navigation href="*" />
 </widget>

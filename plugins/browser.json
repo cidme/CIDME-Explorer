@@ -15,6 +15,9 @@
     },
     "cordova-plugin-whitelist": {
       "PACKAGE_NAME": "com.jtdigi.cidmeexplorer"
+    },
+    "cordova-sqlite-storage": {
+      "PACKAGE_NAME": "com.jtdigi.cidmeexplorer"
     }
   },
   "dependent_plugins": {}

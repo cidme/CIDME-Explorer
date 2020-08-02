@@ -6,6 +6,12 @@
   "version": "com.jtdigi.cidmeexplorer",
   "description": "A proof-of-concept app demonstrating a User Interface (UI) for visual CIDME Entity manipulation.",
   "author": "Joe Thielen",
-  "icons": [],
+  "icons": [
+    {
+      "src": "www/img/cidme-icon_logo-48x48.png",
+      "type": "image/png",
+      "sizes": "undefinedxundefined"
+    }
+  ],
   "start_url": "index.html"
 }
